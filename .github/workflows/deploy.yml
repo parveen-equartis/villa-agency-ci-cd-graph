@@ -1,0 +1,47 @@
+name: Deploy Static Site to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # We removed the manual "Create SSH Key File" step because it was 
+      # causing the "no such file or directory" error due to Docker isolation.
+
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          # Pass the RAW secret directly to 'key'
+          key: ${{ secrets.EC2_SSH_KEY_B64 }} 
+          port: 22
+          script_stop: true 
+          script: |
+            PROJECT_DIR="~/villa-agency-ci-cd"
+            STATIC_SITE_DIR="~/static-site"
+
+            mkdir -p $STATIC_SITE_DIR
+
+            if [ ! -d "$PROJECT_DIR" ]; then
+              echo "Cloning repository..."
+              git clone https://github.com/${{ github.repository }}.git $PROJECT_DIR
+            fi
+
+            echo "Updating code..."
+            cd $PROJECT_DIR
+            git pull origin main
+
+            echo "Syncing files..."
+            rsync -avz --delete $PROJECT_DIR/ $STATIC_SITE_DIR/
+
+            echo "Reloading Nginx..."
+            sudo systemctl reload nginx
