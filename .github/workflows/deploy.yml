@@ -88,6 +88,15 @@ jobs:
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/villa-agency-ci-cd-graph:latest
 
+    - name: Upload compose file to EC2
+      uses: appleboy/scp-action@v0.1.4
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_SSH_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        source: "docker-compose.yml"
+        target: "/home/${{ secrets.SERVER_SSH_USER }}/villa-agency-ci-cd-graph/docker-compose.yml"
+
     - name: SSH Deploy to AWS EC2
       uses: appleboy/ssh-action@v1
       with:
@@ -95,12 +104,8 @@ jobs:
         username: ${{ secrets.SERVER_SSH_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          mkdir -p /home/${{ secrets.SERVER_SSH_USER }}/villa-agency-ci-cd-graph
           cd /home/${{ secrets.SERVER_SSH_USER }}/villa-agency-ci-cd-graph
-
-          # Pull latest image
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/villa-agency-ci-cd-graph:latest
-
-          # Use legacy docker-compose (standalone binary)
           /usr/local/bin/docker-compose down || true
           /usr/local/bin/docker-compose up -d --build
+
