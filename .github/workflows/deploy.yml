@@ -57,22 +57,21 @@ jobs:
         host: ${{ secrets.SERVER_IP }}
         username: ${{ secrets.SERVER_SSH_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
-        port: 22
         script: |
-          # Ensure deployment directory exists
-          mkdir -p /home/${{ secrets.SERVER_SSH_USER }}/villa-agency-ci-cd‑graph
+          # Create folder if missing
+          mkdir -p /home/${{ secrets.SERVER_SSH_USER }}/villa-agency-ci-cd-graph
 
-          # Go to that folder
-          cd /home/${{ secrets.SERVER_SSH_USER }}/villa-agency-ci-cd‑graph
+          # Go to deployment directory
+          cd /home/${{ secrets.SERVER_SSH_USER }}/villa-agency-ci-cd-graph
 
-          # Pull the new image
+          # Pull latest image
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/villa-agency-ci-cd-graph:latest
 
-          # Make sure Docker Compose plugin is on PATH
+          # Ensure docker compose plugin is on PATH
           export PATH="/usr/local/lib/docker/cli-plugins:$PATH"
 
-          # Stop old containers (ignore errors)
+          # Stop old containers (ignore errors if none are running)
           docker compose down || true
 
-          # Run new containers
+          # Start services with new image
           docker compose up -d --build
