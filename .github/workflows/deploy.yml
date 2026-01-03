@@ -74,20 +74,12 @@ jobs:
         username: ${{ secrets.SERVER_SSH_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
         script: |
-          # Create folder if missing
           mkdir -p /home/${{ secrets.SERVER_SSH_USER }}/villa-agency-ci-cd-graph
-
-          # Go to deployment directory
           cd /home/${{ secrets.SERVER_SSH_USER }}/villa-agency-ci-cd-graph
 
-          # Pull latest image
-          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/villa-agency-ci-cd-graph:latest
-
-          # Ensure docker compose plugin is on PATH
+          # Make sure the Docker Compose plugin path is included
           export PATH="/usr/local/lib/docker/cli-plugins:$PATH"
 
-          # Stop old containers (ignore errors if none are running)
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/villa-agency-ci-cd-graph:latest
           docker compose down || true
-
-          # Start services with new image
           docker compose up -d --build
