@@ -14,16 +14,13 @@ scrape_configs:
       module: [http_2xx]
     static_configs:
       - targets:
-          - http://web:80
+          - web:80
+          # add more public IPs if needed
+          # - http://PUBLIC_IP_2:8080
     relabel_configs:
-      # Send the target URL to blackbox exporter
       - source_labels: [__address__]
         target_label: __param_target
-
-      # Show real target in Prometheus UI
       - source_labels: [__param_target]
         target_label: instance
-
-      # Blackbox exporter service
       - target_label: __address__
         replacement: blackbox:9115
