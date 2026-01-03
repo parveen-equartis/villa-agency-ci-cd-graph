@@ -1,6 +1,6 @@
 services:
   web:
-    image: yourdockerhubusername/villa-agency-ci-cd-graph:latest
+    image: parveendhiman/villa-agency-ci-cd-graph:latest
     container_name: web
     ports:
       - "80:80"
