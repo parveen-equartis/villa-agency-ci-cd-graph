@@ -1,30 +1,40 @@
+networks:
+  monitoring:
+    driver: bridge
+
 services:
   web:
     image: parveendhiman/villa-agency-ci-cd-graph:latest
-    container_name: web
     ports:
       - "80:80"
     restart: always
+    networks:
+      - monitoring
 
   prometheus:
     image: prom/prometheus:latest
-    container_name: prometheus
     volumes:
       - ./prometheus:/etc/prometheus
     ports:
       - "9090:9090"
+    depends_on:
+      - blackbox
+    networks:
+      - monitoring
 
   blackbox:
     image: prom/blackbox-exporter:latest
-    container_name: blackbox
     volumes:
       - ./blackbox:/etc/blackbox_exporter
+    command:
+      - "--config.file=/etc/blackbox_exporter/blackbox.yml"
     ports:
       - "9115:9115"
+    networks:
+      - monitoring
 
   grafana:
     image: grafana/grafana
-    container_name: grafana
     ports:
       - "3000:3000"
     environment:
@@ -32,6 +42,8 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafana-data:/var/lib/grafana
+    networks:
+      - monitoring
 
 volumes:
   grafana-data:
