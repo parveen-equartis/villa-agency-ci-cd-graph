@@ -44,6 +44,22 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+    - name: Test remote docker compose commands
+      uses: appleboy/ssh-action@v1
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_SSH_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          cd /home/${{ secrets.SERVER_SSH_USER }}
+          echo "Current dir: $(pwd)"
+          # Try both forms
+          echo "Running: docker compose up -d"
+          docker compose up -d || echo "docker compose up -d failed"
+          echo "Running: docker‑compose up -d"
+          docker‑compose up -d || echo "docker‑compose up -d failed"
+
+
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
       with:
