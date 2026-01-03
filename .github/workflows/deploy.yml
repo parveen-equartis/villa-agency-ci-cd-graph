@@ -27,6 +27,7 @@ jobs:
           which docker
           docker --version
           docker compose version || echo "Compose not in PATH"
+
     - name: Test SSH connection
       uses: appleboy/ssh-action@v1
       with:
