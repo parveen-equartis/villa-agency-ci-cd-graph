@@ -59,6 +59,27 @@ jobs:
           echo "Running: docker‑compose up -d"
           docker‑compose up -d || echo "docker‑compose up -d failed"
 
+    - name: Debug remote Docker/Compose environment
+      uses: appleboy/ssh-action@v1
+      with:
+        host: ${{ secrets.SERVER_IP }}
+        username: ${{ secrets.SERVER_SSH_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        script: |
+          echo "SSH PATH: $PATH"
+          echo "--- Docker ---"
+          which docker
+          docker --version
+
+          echo "--- Try docker compose (CLI plugin) ---"
+          docker compose version || echo "docker compose not available"
+
+          echo "--- Try standalone docker-compose ---"
+          which docker-compose || echo "docker-compose not found in PATH"
+          docker-compose --version || echo "docker-compose not installed or not accessible"
+
+
+
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
