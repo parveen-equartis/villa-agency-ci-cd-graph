@@ -7,20 +7,24 @@ services:
     restart: always
 
   prometheus:
-    image: prom/prometheus:latest
+    image: prom/prometheus
     container_name: prometheus
     volumes:
-      - ./prometheus:/etc/prometheus
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
     ports:
       - "9090:9090"
+    depends_on:
+      - blackbox
 
   blackbox:
-    image: prom/blackbox-exporter:latest
+    image: prom/blackbox-exporter
     container_name: blackbox
-    volumes:
-      - ./blackbox:/etc/blackbox_exporter
     ports:
       - "9115:9115"
+    volumes:
+      - ./blackbox.yml:/etc/blackbox_exporter/config.yml
+    command:
+      - '--config.file=/etc/blackbox_exporter/config.yml'
 
   grafana:
     image: grafana/grafana
