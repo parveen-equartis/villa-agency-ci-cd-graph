@@ -2,8 +2,7 @@ name: Villa Agency CI-CD Graph
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
@@ -30,13 +29,25 @@ jobs:
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/villa-agency-ci-cd-graph:latest
 
     - name: SSH Deploy to AWS EC2
-      uses: appleboy/ssh-action@v0.1.7
+      uses: appleboy/ssh-action@v1
       with:
         host: ${{ secrets.SERVER_IP }}
         username: ${{ secrets.SERVER_SSH_USER }}
         key: ${{ secrets.SERVER_SSH_KEY }}
+        port: 22
         script: |
+          # Ensure directory exists
+          mkdir -p /home/${{ secrets.SERVER_SSH_USER }}/villa-agency-ci-cd-graph
+
+          # Change to deployment folder
           cd /home/${{ secrets.SERVER_SSH_USER }}/villa-agency-ci-cd-graph
+
+          # Pull the latest image
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/villa-agency-ci-cd-graph:latest
-          docker compose down
+
+          # Optionally export compose plugin path
+          export PATH="/usr/local/lib/docker/cli-plugins:$PATH"
+
+          # Stop and run
+          docker compose down || true
           docker compose up -d --build
