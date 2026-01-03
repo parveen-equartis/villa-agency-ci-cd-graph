@@ -14,7 +14,7 @@ scrape_configs:
       module: [http_2xx]
     static_configs:
       - targets:
-          - http://43.204.145.72:80
+          - http://127.0.0.1:80
           # add more public IPs if needed
           # - http://PUBLIC_IP_2:8080
     relabel_configs:
