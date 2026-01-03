@@ -26,6 +26,7 @@ services:
     command:
       - '--config.file=/etc/blackbox_exporter/config.yml'
 
+
   grafana:
     image: grafana/grafana
     container_name: grafana
