@@ -59,22 +59,6 @@ jobs:
           echo "Running: docker‑compose up -d"
           docker‑compose up -d || echo "docker‑compose up -d failed"
 
-    - name: Debug remote Docker/Compose environment
-      uses: appleboy/ssh-action@v1
-      with:
-        host: ${{ secrets.SERVER_IP }}
-        username: ${{ secrets.SERVER_SSH_USER }}
-        key: ${{ secrets.SERVER_SSH_KEY }}
-        script: |
-          echo "SSH PATH: $PATH"
-          which docker
-          docker --version
-          docker compose version || echo "docker compose not found"
-          which docker-compose || echo "docker-compose not found"
-          docker-compose --version || echo "legacy docker-compose not installed"
-          ls /usr/local/lib/docker/cli-plugins
-
-
 
     - name: Build and push Docker image
       uses: docker/build-push-action@v4
@@ -93,9 +77,9 @@ jobs:
           mkdir -p /home/${{ secrets.SERVER_SSH_USER }}/villa-agency-ci-cd-graph
           cd /home/${{ secrets.SERVER_SSH_USER }}/villa-agency-ci-cd-graph
 
-          # Make sure the Docker Compose plugin path is included
-          export PATH="/usr/local/lib/docker/cli-plugins:$PATH"
-
+          # Pull latest image
           docker pull ${{ secrets.DOCKERHUB_USERNAME }}/villa-agency-ci-cd-graph:latest
-          docker compose down || true
-          docker compose up -d --build
+
+          # Use legacy docker-compose (standalone binary)
+          /usr/local/bin/docker-compose down || true
+          /usr/local/bin/docker-compose up -d --build
